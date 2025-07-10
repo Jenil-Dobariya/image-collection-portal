@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import axios from "axios";
@@ -19,7 +19,7 @@ export default function Home() {
   });
   const [otp, setOtp] = useState("");
   const [images, setImages] = useState([]);
-  const [imageDates, setImageDates] = useState([]);
+  const [imageAges, setImageAges] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-    //   await axios.post(`${API_URL}/send-otp`, { email: consentData.email });
+      //   await axios.post(`${API_URL}/send-otp`, { email: consentData.email });
       setStep(2); // Move to OTP verification step
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP.");
@@ -60,10 +60,10 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-    //   await axios.post(`${API_URL}/verify-otp`, {
-    //     email: consentData.email,
-    //     otp,
-    //   });
+      //   await axios.post(`${API_URL}/verify-otp`, {
+      //     email: consentData.email,
+      //     otp,
+      //   });
       setStep(3); // Move to data upload step
     } catch (err) {
       setError(err.response?.data?.message || "Failed to verify OTP.");
@@ -91,19 +91,19 @@ export default function Home() {
 
     setError("");
     setImages((prev) => [...prev, ...validFiles]);
-    setImageDates((prev) => [
+    setImageAges((prev) => [
       ...prev,
-      ...Array(validFiles.length).fill(new Date().toISOString().split("T")[0]),
+      ...Array(validFiles.length).fill(''),
     ]);
 
     const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
   };
 
-  const handleDateChange = (index, date) => {
-    const newDates = [...imageDates];
-    newDates[index] = date;
-    setImageDates(newDates);
+  const handleAgeChange = (index, age) => {
+    const newAges = [...imageAges];
+    newAges[index] = age;
+    setImageAges(newAges);
   };
 
   const generateConsentPdf = () => {
@@ -146,18 +146,18 @@ export default function Home() {
       formData.append("images", image);
     });
 
-    // Append image dates as a JSON string
-    formData.append("imageDates", JSON.stringify(imageDates));
+    // Append image ages as a JSON string
+    formData.append("imageAges", JSON.stringify(imageAges));
 
     // Generate and append consent PDF
     const pdfBlob = generateConsentPdf();
     formData.append("consentForm", pdfBlob, "__consent_form.pdf");
 
     try {
-    //   const response = await axios.post(`${API_URL}/submit`, formData, {
-    //     headers: { "Content-Type": "multipart/form-data" },
-    //   });
-    //   setSuccessMessage(response.data.message);
+      //   const response = await axios.post(`${API_URL}/submit`, formData, {
+      //     headers: { "Content-Type": "multipart/form-data" },
+      //   });
+      //   setSuccessMessage(response.data.message);
       setStep(4); // Success step
     } catch (err) {
       setError(err.response?.data?.message || "Submission failed.");
@@ -262,6 +262,7 @@ export default function Home() {
           <form onSubmit={handleSubmit} className={styles.form}>
             <h2>Upload Your Images</h2>
             <p>Your email is verified. Please upload up to 10 images.</p>
+            <p className={styles.instruction}> 📸 For each image you upload, please enter your age in that photo. </p>
             <input
               type="file"
               accept="image/png, image/jpeg"
@@ -273,12 +274,16 @@ export default function Home() {
               {previews.map((preview, index) => (
                 <div key={index} className={styles.preview}>
                   <img src={preview} alt={`preview ${index}`} />
-                  <label>Date of Image:</label>
+                  <label htmlFor={`age-${index}`}>Age in Photo:</label>
                   <input
-                    type="date"
-                    value={imageDates[index]}
-                    onChange={(e) => handleDateChange(index, e.target.value)}
+                    id={`age-${index}`}
+                    type="number"
+                    placeholder="e.g., 21"
+                    value={imageAges[index]}
+                    onChange={(e) => handleAgeChange(index, e.target.value)}
+                    min="1"
                     required
+                    className={styles.ageInput}
                   />
                 </div>
               ))}
