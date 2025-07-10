@@ -112,12 +112,12 @@ router.post('/verify-otp', async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(400).json({ message: 'Invalid or expired OTP.' });
+            return res.status(400).json({ message: 'OTP Expired, Please try again.' });
         }
 
         const validOtp = await bcrypt.compare(otp, result.rows[0].otp_hash);
         if (!validOtp) {
-            return res.status(400).json({ message: 'Invalid or expired OTP.' });
+            return res.status(400).json({ message: 'Invalid OTP, Please enter correct OTP.' });
         }
         
         // Clean up used OTP
@@ -134,7 +134,7 @@ router.post('/verify-otp', async (req, res) => {
 // 3. Submit Form Data and Images
 const submissionFields = [{ name: 'images', maxCount: 10 }, { name: 'consentForm', maxCount: 1 }];
 router.post('/submit', upload.fields(submissionFields), async (req, res) => {
-    const { name, age, email, consentGiven, imageDates } = req.body;
+    const { name, age, email, consentGiven, imageAges } = req.body;
     const images = req.files['images'];
     const consentForm = req.files['consentForm'] ? req.files['consentForm'][0] : null;
     
@@ -160,14 +160,14 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
 
         // Insert into student_images table
         const imageInsertQuery = `
-            INSERT INTO student_images (id, student_id, file_path, image_date)
+            INSERT INTO student_images (id, student_id, file_path, image_age)
             VALUES ($1, $2, $3, $4);
         `;
-        const dates = JSON.parse(imageDates);
+        const ages = JSON.parse(imageAges);
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
             const relativePath = path.relative('/data', image.path);
-            await client.query(imageInsertQuery, [uuidv4(), dbStudentId, relativePath, dates[i]]);
+            await client.query(imageInsertQuery, [uuidv4(), dbStudentId, relativePath, ages[i]]);
         }
         
         await client.query('COMMIT');

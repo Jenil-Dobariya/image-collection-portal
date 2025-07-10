@@ -26,7 +26,7 @@ const createTables = async () => {
         id UUID PRIMARY KEY,
         student_id UUID REFERENCES students(id) ON DELETE CASCADE,
         file_path TEXT NOT NULL,
-        image_date DATE NOT NULL,
+        image_age INT NOT NULL,
         uploaded_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       );
 
