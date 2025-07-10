@@ -1,0 +1,143 @@
+.container {
+  min-height: 100vh;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f7f9; /* A light, soft gray background */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.main {
+  padding: 3rem 2.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff; /* Clean white background for the main card */
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* A subtle shadow */
+  max-width: 650px;
+  width: 100%;
+  margin: 2rem 0;
+}
+
+.title {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.15;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1a202c; /* A dark, near-black color for titles */
+}
+
+.description {
+  line-height: 1.6;
+  font-size: 1.2rem;
+  text-align: center;
+  margin: 1rem 0 2rem 0;
+  color: #4a5568; /* A softer gray for descriptions */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1.25rem; /* Increased gap for better spacing */
+}
+
+/* Style for input, select, and buttons */
+.form input, .form select {
+  padding: 12px 15px;
+  border-radius: 8px; /* Slightly more rounded corners */
+  border: 1px solid #cbd5e0; /* A clear, light gray border */
+  background-color: #ffffff; /* Explicitly white background */
+  font-size: 1rem;
+  color: #2d3748;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form input:focus, .form select:focus {
+  outline: none;
+  border-color: #2b6cb0; /* A nice blue for focus state */
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Focus ring for accessibility */
+}
+
+.form button {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2b6cb0; /* A professional blue */
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form button:disabled {
+  background-color: #a0aec0; /* A lighter gray for disabled state */
+  cursor: not-allowed;
+}
+
+.form button:hover:not(:disabled) {
+  background-color: #2c5282; /* A darker blue on hover */
+}
+
+.consentBox {
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f7fafc; /* Very light background for contrast */
+    max-height: 120px;
+    overflow-y: auto;
+    color: #4a5568;
+}
+
+.error {
+  color: #c53030; /* A strong red for errors */
+  background: #fed7d7;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #fbb6b6;
+}
+
+.success {
+  color: #2f855a; /* A nice green for success */
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.previewContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background-color: #fdfdff;
+}
+
+.preview img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.preview label {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+}
