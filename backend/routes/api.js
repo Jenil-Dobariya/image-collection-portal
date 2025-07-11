@@ -14,7 +14,7 @@ const saltRounds = 10;
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: false, // true for 465, false for other ports
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -73,27 +73,33 @@ router.post('/send-otp', async (req, res) => {
         return res.status(400).json({ message: 'A valid IITK email is required.' });
     }
 
+    const client = await pool.connect();
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otp_hash = await bcrypt.hash(otp, saltRounds);
     const expires_at = new Date(Date.now() + 10 * 60 * 1000); // Expires in 10 minutes
 
     try {
-        await pool.query(
+        await client.query('BEGIN');
+
+        await client.query(
             'INSERT INTO otps (email, otp_hash, expires_at) VALUES ($1, $2, $3)',
             [email, otp_hash, expires_at]
         );
 
         await transporter.sendMail({
-            from: `"Student Portal" <${process.env.EMAIL_USER}>`,
+            from: `${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Your Verification Code',
-            text: `Your OTP for the Student Image Collection Portal is: ${otp}`,
-            html: `<b>Your OTP is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
+            subject: '[Smart Search] Verify email for Image Collection Portal',
+            html: `<b>Your OTP to verify email for consent form on image collection portal is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
         });
 
+        await client.query('COMMIT');
         res.status(200).json({ message: 'OTP sent successfully.' });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Error sending OTP:', error);
+
         res.status(500).json({ message: 'Failed to send OTP.' });
     }
 });
@@ -121,7 +127,7 @@ router.post('/verify-otp', async (req, res) => {
         }
         
         // Clean up used OTP
-        await pool.query('DELETE FROM otps WHERE id = $1', [result.rows[0].id]);
+        await pool.query('DELETE FROM otps WHERE email = $1', [email]);
 
         res.status(200).json({ message: 'Email verified successfully.' });
     } catch (error) {
