@@ -14,7 +14,7 @@ const saltRounds = 10;
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: true, // true for 465, false for other ports
+    secure: false, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -89,9 +89,10 @@ router.post('/send-otp', async (req, res) => {
 
         await transporter.sendMail({
             from: `${process.env.EMAIL_USER}>`,
+            replyTo: `${process.env.EMAIL_USER}`,
             to: email,
             subject: '[Smart Search] Verify email for Image Collection Portal',
-            html: `<b>Your OTP to verify email for consent form on image collection portal is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
+            html: `<b>Your OTP to verify email for consent form on image collection portal is: ${otp}</b><p>It will expire in 10 minutes.</p><br><p>This is an automated message. Please do not reply to this email.</p>`,
         });
 
         await client.query('COMMIT');
