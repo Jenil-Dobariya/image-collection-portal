@@ -46,7 +46,7 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-      //   await axios.post(`${API_URL}/send-otp`, { email: consentData.email });
+      await axios.post(`${API_URL}/send-otp`, { email: consentData.email });
       setStep(2); // Move to OTP verification step
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP.");
@@ -60,10 +60,10 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-      //   await axios.post(`${API_URL}/verify-otp`, {
-      //     email: consentData.email,
-      //     otp,
-      //   });
+        await axios.post(`${API_URL}/verify-otp`, {
+          email: consentData.email,
+          otp,
+        });
       setStep(3); // Move to data upload step
     } catch (err) {
       setError(err.response?.data?.message || "Failed to verify OTP.");
