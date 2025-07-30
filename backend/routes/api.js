@@ -31,9 +31,9 @@ const storage = multer.diskStorage({
         const studentId = req.studentId;
         let dir;
         if (file.fieldname === 'consentForm') {
-            dir = path.join('/data/consent_form/', studentId);
+            dir = path.join('/app/data/consent_form/', studentId);
         } else {
-            dir = path.join('/data/student_uploads/', studentId);
+            dir = path.join('/app/data/student_uploads/', studentId);
         }
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
@@ -71,15 +71,24 @@ router.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// 1. Send OTP
+// 1. Send OTP (Development mode - bypass email sending)
 router.post('/send-otp', async (req, res) => {
     const { email } = req.body;
     if (!email || !email.endsWith('@iitk.ac.in')) {
         return res.status(400).json({ message: 'A valid IITK email is required.' });
     }
 
-    const client = await pool.connect();
+    // Development mode: Skip database operations and email sending
+    const isDevelopment = process.env.NODE_ENV !== 'production';
 
+    if (isDevelopment) {
+        console.log(`Development mode: OTP request for ${email} - skipping email send`);
+        res.status(200).json({ message: 'OTP sent successfully (development mode).' });
+        return;
+    }
+
+    // Production mode: Full OTP functionality
+    const client = await pool.connect();
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otp_hash = await bcrypt.hash(otp, saltRounds);
     const expires_at = new Date(Date.now() + 10 * 60 * 1000); // Expires in 10 minutes
@@ -92,31 +101,47 @@ router.post('/send-otp', async (req, res) => {
             [email, otp_hash, expires_at]
         );
 
-        await transporter.sendMail({
-            from: `${process.env.EMAIL_USER}>`,
-            replyTo: `${process.env.EMAIL_USER}`,
-            to: email,
-            subject: '[Smart Search] Verify email for Image Collection Portal',
-            html: `<b>Your OTP to verify email for consent form on image collection portal is: ${otp}</b><p>It will expire in 10 minutes.</p><br><p>This is an automated message. Please do not reply to this email.</p>`,
-        });
+        try {
+            await transporter.sendMail({
+                from: `${process.env.EMAIL_USER}>`,
+                replyTo: `${process.env.EMAIL_USER}`,
+                to: email,
+                subject: '[Smart Search] Verify email for Image Collection Portal',
+                html: `<b>Your OTP to verify email for consent form on image collection portal is: ${otp}</b><p>It will expire in 10 minutes.</p><br><p>This is an automated message. Please do not reply to this email.</p>`,
+            });
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError.message);
+            // Continue with the process even if email fails
+        }
 
         await client.query('COMMIT');
         res.status(200).json({ message: 'OTP sent successfully.' });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error sending OTP:', error);
-
         res.status(500).json({ message: 'Failed to send OTP.' });
+    } finally {
+        client.release();
     }
 });
 
-// 2. Verify OTP
+// 2. Verify OTP (Development mode - accept any OTP)
 router.post('/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) {
         return res.status(400).json({ message: 'Email and OTP are required.' });
     }
 
+    // Development mode: Accept any OTP
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    if (isDevelopment) {
+        console.log(`Development mode: OTP verification for ${email} with OTP: ${otp} - accepting any OTP`);
+        res.status(200).json({ message: 'Email verified successfully (development mode).' });
+        return;
+    }
+
+    // Production mode: Full OTP verification
     try {
         const result = await pool.query(
             'SELECT * FROM otps WHERE email = $1 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
@@ -178,7 +203,7 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
         const ages = JSON.parse(imageAges);
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
-            const relativePath = path.relative('/data', image.path);
+            const relativePath = path.relative('/app/data', image.path);
             await client.query(imageInsertQuery, [uuidv4(), dbStudentId, relativePath, ages[i]]);
         }
 
@@ -190,8 +215,8 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
         console.error('Submission Error:', error);
 
         // Cleanup failed upload files
-        fs.rm(path.join('/data/student_uploads/', studentId), { recursive: true, force: true }, () => { });
-        fs.rm(path.join('/data/consent_form/', studentId), { recursive: true, force: true }, () => { });
+        fs.rm(path.join('/app/data/student_uploads/', studentId), { recursive: true, force: true }, () => { });
+        fs.rm(path.join('/app/data/consent_form/', studentId), { recursive: true, force: true }, () => { });
 
         res.status(500).json({ message: 'An error occurred during submission.' });
     } finally {
