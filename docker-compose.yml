@@ -39,7 +39,7 @@ services:
       - SERVER_PORT=${SERVER_PORT}
       - PORT=3001
     volumes:
-      - /data:/app/data
+      - /data/image_collection_data:/app/data
     ports:
       - "3001:3001"
     depends_on:
