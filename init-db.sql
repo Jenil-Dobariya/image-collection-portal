@@ -1,46 +1,48 @@
--- Initialize database for Image Collection Portal
--- This script runs automatically when PostgreSQL container starts
+-- Initialize database for Smart Search and Rescue Project
+-- This script creates all necessary tables and indexes
 
--- Create tables if they don't exist
+-- Create students table
 CREATE TABLE IF NOT EXISTS students (
     id UUID PRIMARY KEY,
-    name TEXT NOT NULL,
-    age INT NOT NULL,
-    contact_info TEXT UNIQUE NOT NULL,
-    consent_given BOOLEAN NOT NULL DEFAULT false,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(255) NOT NULL,
+    age INTEGER NOT NULL,
+    gender VARCHAR(50),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    consent_given BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Create student_images table
 CREATE TABLE IF NOT EXISTS student_images (
     id UUID PRIMARY KEY,
     student_id UUID REFERENCES students(id) ON DELETE CASCADE,
-    file_path TEXT NOT NULL,
-    image_age INT NOT NULL,
-    uploaded_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    file_path VARCHAR(500) NOT NULL,
+    image_age INTEGER,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Create OTP table for email verification
 CREATE TABLE IF NOT EXISTS otps (
-    id SERIAL PRIMARY KEY,
-    email TEXT NOT NULL,
-    otp_hash TEXT NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    id UUID PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_otps_email ON otps(email);
-CREATE INDEX IF NOT EXISTS idx_students_contact_info ON students(contact_info);
+CREATE INDEX IF NOT EXISTS idx_students_email ON students(email);
 CREATE INDEX IF NOT EXISTS idx_student_images_student_id ON student_images(student_id);
+CREATE INDEX IF NOT EXISTS idx_otps_email ON otps(email);
+CREATE INDEX IF NOT EXISTS idx_otps_expires_at ON otps(expires_at);
 
--- Create a health check function
-CREATE OR REPLACE FUNCTION health_check()
-RETURNS TEXT AS $$
+-- Create a function to check database health
+CREATE OR REPLACE FUNCTION health_check() RETURNS TEXT AS $$
 BEGIN
-    RETURN 'OK';
+    RETURN 'Database is healthy';
 END;
 $$ LANGUAGE plpgsql;
 
--- Grant permissions to the portal user
+-- Grant necessary permissions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO portal_user;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO portal_user;
-GRANT EXECUTE ON FUNCTION health_check() TO portal_user; 
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO portal_user; 

@@ -97,8 +97,8 @@ router.post('/send-otp', async (req, res) => {
         await client.query('BEGIN');
 
         await client.query(
-            'INSERT INTO otps (email, otp_hash, expires_at) VALUES ($1, $2, $3)',
-            [email, otp_hash, expires_at]
+            'INSERT INTO otps (id, email, otp_hash, expires_at) VALUES ($1, $2, $3, $4)',
+            [uuidv4(), email, otp_hash, expires_at]
         );
 
         try {
@@ -188,11 +188,18 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
 
         // Insert into students table
         const studentInsertQuery = `
-            INSERT INTO students (id, name, age, contact_info, consent_given)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO students (id, name, age, gender, email, consent_given)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id;
         `;
-        const studentResult = await client.query(studentInsertQuery, [studentId, name, age, email, true]);
+        const studentResult = await client.query(studentInsertQuery, [
+            studentId,
+            name,
+            age,
+            req.body.gender || null,
+            email,
+            true
+        ]);
         const dbStudentId = studentResult.rows[0].id;
 
         // Insert into student_images table
@@ -208,7 +215,7 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
         }
 
         await client.query('COMMIT');
-        res.status(201).json({ message: 'Submission successful!', studentId: dbStudentId });
+        res.status(201).json({ message: 'Submission successful! Your images have been uploaded for the Smart Search and Rescue project.', studentId: dbStudentId });
 
     } catch (error) {
         await client.query('ROLLBACK');
