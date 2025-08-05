@@ -7,9 +7,11 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const SERVER_URL = process.env.SERVER_URL || "locahost";
+const SERVER_PORT = process.env.SERVER_PORT || "8008";
 
 // --- Middleware ---
-app.use(cors({ origin: 'http://localhost:3000' })); // Allow frontend access
+app.use(cors({ origin: `http://${SERVER_URL}:${SERVER_PORT}` })); // Allow frontend access
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
