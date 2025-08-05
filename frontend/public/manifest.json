@@ -1,0 +1,16 @@
+{
+  "name": "Smart Search and Rescue Project - Image Collection Portal",
+  "short_name": "Smart Search Portal",
+  "description": "Image collection portal for the Smart Search and Rescue research project",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#3498db",
+  "icons": [
+    {
+      "src": "/next.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+} 
