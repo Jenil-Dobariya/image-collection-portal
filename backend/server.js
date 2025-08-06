@@ -8,7 +8,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const SERVER_URL = process.env.SERVER_URL || "locahost";
-const SERVER_PORT = process.env.SERVER_PORT || "8008";
+const SERVER_PORT = process.env.SERVER_PORT || "8080";
 
 // --- Middleware ---
 app.use(cors({ origin: `http://${SERVER_URL}:${SERVER_PORT}` })); // Allow frontend access

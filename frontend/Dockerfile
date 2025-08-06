@@ -16,6 +16,11 @@ RUN npm config set fetch-timeout 300000 && \
 # Copy source code
 COPY . .
 
+# 1. Accept the build argument from docker-compose
+ARG NEXT_PUBLIC_API_URL
+# 2. Set it as an environment variable for the rest of the build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Build the application
 RUN npm run build
 
