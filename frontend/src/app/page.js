@@ -144,7 +144,7 @@ export default function Home() {
     // Header
     doc.setFontSize(20);
     doc.setTextColor(44, 62, 80);
-    doc.text("Smart Search and Rescue Project", 20, 20);
+    doc.text("Development of AI-Enabled National Portal for Efficient Search of Missing People", 20, 20);
     doc.text("Consent Form", 20, 30);
 
     doc.setFontSize(12);
@@ -278,7 +278,7 @@ export default function Home() {
     <div className={styles.container}>
       <main className={styles.main}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Smart Search and Rescue Project</h1>
+          <h1 className={styles.title}>Development of AI-Enabled National Portal for Efficient Search of Missing People</h1>
           <p className={styles.subtitle}>Image Collection Portal</p>
           <div className={styles.progressBar}>
             <div
@@ -303,7 +303,7 @@ export default function Home() {
               <div className={styles.consentBox}>
                 <h3>Project Information</h3>
                 <p>
-                  <strong>Project Title:</strong> Smart Search and Rescue Project<br />
+                  <strong>Project Title:</strong> Development of AI-Enabled National Portal for Efficient Search of Missing People <br />
                   <strong>Objective:</strong> To develop advanced face recognition algorithms for search and rescue operations
                 </p>
 
@@ -317,7 +317,7 @@ export default function Home() {
 
                 <p>
                   I have no objection, and am giving my consent, if my images
-                  are used for purpose.
+                  are used for training purpose.
                 </p>
 
                 <p><strong>Please tick if you agree with the following:</strong></p>
@@ -547,7 +547,7 @@ export default function Home() {
             <div className={styles.successInfo}>
               <h3>What happens next?</h3>
               <ul>
-                <li>Your images will be processed for the Smart Search and Rescue project</li>
+                <li>Your images will be used for training purposes in this project</li>
                 <li>Your consent form has been saved with your submission</li>
                 <li>You can download your consent form for your records</li>
                 <li>Thank you for contributing to this important research!</li>

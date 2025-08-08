@@ -215,7 +215,7 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
         }
 
         await client.query('COMMIT');
-        res.status(201).json({ message: 'Submission successful! Your images have been uploaded for the Smart Search and Rescue project.', studentId: dbStudentId });
+        res.status(201).json({ message: 'Submission successful! Your images have been uploaded for the Development of AI-Enabled National Portal for Efficient Search of Missing People project.', studentId: dbStudentId });
 
     } catch (error) {
         await client.query('ROLLBACK');
