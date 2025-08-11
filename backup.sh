@@ -47,7 +47,7 @@ create_backup_dir() {
 backup_database() {
     print_status "Creating database backup..."
     
-    if docker-compose exec -T postgres pg_dump -U portal_user image_collection_db > "$BACKUP_DIR/$DB_BACKUP_FILE"; then
+    if docker compose exec -T postgres pg_dump -U portal_user image_collection_db > "$BACKUP_DIR/$DB_BACKUP_FILE"; then
         print_success "Database backup created: $DB_BACKUP_FILE"
         print_status "Database backup size: $(du -h "$BACKUP_DIR/$DB_BACKUP_FILE" | cut -f1)"
     else
@@ -61,7 +61,7 @@ backup_files() {
     print_status "Creating uploaded files backup..."
     
     # Get the volume path
-    VOLUME_PATH=$(docker volume inspect portal_upload_data --format '{{.Mountpoint}}')
+    VOLUME_PATH=$(docker volume inspect image-collection-portal_upload_data --format '{{.Mountpoint}}')
     
     if [ -z "$VOLUME_PATH" ]; then
         print_error "Could not find upload volume"
@@ -149,11 +149,11 @@ restore_backup() {
     
     # Restore database
     print_status "Restoring database..."
-    docker-compose exec -T postgres psql -U portal_user -d image_collection_db < "$temp_dir"/*.sql
+    docker compose exec -T postgres psql -U portal_user -d image_collection_db < "$temp_dir"/*.sql
     
     # Restore files
     print_status "Restoring uploaded files..."
-    VOLUME_PATH=$(docker volume inspect portal_upload_data --format '{{.Mountpoint}}')
+    VOLUME_PATH=$(docker volume inspect image-collection-portal_upload_data --format '{{.Mountpoint}}')
     tar -xzf "$temp_dir"/*.tar.gz -C "$VOLUME_PATH"
     
     # Cleanup
@@ -170,7 +170,7 @@ main() {
     echo ""
     
     # Check if services are running
-    if ! docker-compose ps | grep -q "Up"; then
+    if ! docker compose ps | grep -q "Up"; then
         print_error "Services are not running. Please start the application first."
         exit 1
     fi
