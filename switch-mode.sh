@@ -8,14 +8,14 @@ MODE=${1:-development}
 echo "🔄 Switching to $MODE mode..."
 echo ""
 
-# Update docker-compose.yml
+# Update docker compose.yml
 if [ "$MODE" = "production" ]; then
-    sed -i 's/NODE_ENV=development/NODE_ENV=production/' docker-compose.yml
+    sed -i 's/NODE_ENV=development/NODE_ENV=production/' docker compose.yml
     echo "✅ Switched to PRODUCTION mode"
     echo "📧 Real email sending will be enabled"
     echo "🔐 OTP verification will require real OTP from email"
 elif [ "$MODE" = "development" ]; then
-    sed -i 's/NODE_ENV=production/NODE_ENV=development/' docker-compose.yml
+    sed -i 's/NODE_ENV=production/NODE_ENV=development/' docker compose.yml
     echo "✅ Switched to DEVELOPMENT mode"
     echo "📧 Email sending will be bypassed"
     echo "🔐 Any OTP will be accepted for testing"
@@ -26,8 +26,8 @@ fi
 
 echo ""
 echo "🔄 Restarting containers..."
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 
 echo ""
 echo "✅ Application is now running in $MODE mode"
