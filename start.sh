@@ -37,7 +37,7 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    if ! command -v docker &> /dev/null || ! docker compose version &> /dev/null; then
         print_error "Docker Compose is not installed. Please install Docker Compose first."
         exit 1
     fi
@@ -87,7 +87,7 @@ build_images() {
     print_status "Building Docker images..."
     
     # Check if build fails due to npm timeout
-    if ! docker-compose build; then
+    if ! docker compose build; then
         print_warning "Build failed. Trying with yarn alternative..."
         
         # Try yarn-based Dockerfiles
@@ -98,7 +98,7 @@ build_images() {
             mv frontend/Dockerfile frontend/Dockerfile.npm
             mv frontend/Dockerfile.yarn frontend/Dockerfile
             
-            if docker-compose build; then
+            if docker compose build; then
                 print_success "Docker images built successfully with yarn"
             else
                 print_error "Build failed with yarn as well. Trying development mode..."
@@ -118,7 +118,7 @@ build_images() {
 # Start services
 start_services() {
     print_status "Starting services..."
-    docker-compose up -d
+    docker compose up -d
     print_success "Services started successfully"
 }
 
@@ -130,7 +130,7 @@ wait_for_services() {
     print_status "Waiting for database..."
     timeout=60
     counter=0
-    while ! docker-compose exec -T postgres pg_isready -U portal_user -d image_collection_db > /dev/null 2>&1; do
+    while ! docker compose exec -T postgres pg_isready -U portal_user -d image_collection_db > /dev/null 2>&1; do
         sleep 2
         counter=$((counter + 2))
         if [ $counter -ge $timeout ]; then
@@ -172,7 +172,7 @@ wait_for_services() {
 # Show service status
 show_status() {
     print_status "Service Status:"
-    docker-compose ps
+    docker compose ps
     
     echo ""
     print_status "Application URLs:"
@@ -183,10 +183,10 @@ show_status() {
     
     echo ""
     print_status "Useful Commands:"
-    echo -e "  ${YELLOW}View logs:${NC} docker-compose logs -f"
-    echo -e "  ${YELLOW}Stop services:${NC} docker-compose down"
-    echo -e "  ${YELLOW}Restart services:${NC} docker-compose restart"
-    echo -e "  ${YELLOW}Access database:${NC} docker-compose exec postgres psql -U portal_user -d image_collection_db"
+    echo -e "  ${YELLOW}View logs:${NC} docker compose logs -f"
+    echo -e "  ${YELLOW}Stop services:${NC} docker compose down"
+    echo -e "  ${YELLOW}Restart services:${NC} docker compose restart"
+    echo -e "  ${YELLOW}Access database:${NC} docker compose exec postgres psql -U portal_user -d image_collection_db"
 }
 
 # Main function
@@ -213,25 +213,25 @@ main() {
 case "${1:-}" in
     "stop")
         print_status "Stopping services..."
-        docker-compose down
+        docker compose down
         print_success "Services stopped"
         ;;
     "restart")
         print_status "Restarting services..."
-        docker-compose restart
+        docker compose restart
         print_success "Services restarted"
         ;;
     "logs")
         print_status "Showing logs..."
-        docker-compose logs -f
+        docker compose logs -f
         ;;
     "status")
         print_status "Service status:"
-        docker-compose ps
+        docker compose ps
         ;;
     "clean")
         print_status "Cleaning up..."
-        docker-compose down -v
+        docker compose down -v
         docker system prune -f
         print_success "Cleanup completed"
         ;;
