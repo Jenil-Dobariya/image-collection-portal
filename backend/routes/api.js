@@ -185,21 +185,35 @@ router.post('/submit', upload.fields(submissionFields), async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // Insert into students table
-        const studentInsertQuery = `
-            INSERT INTO students (id, name, age, gender, email, consent_given)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING id;
-        `;
-        const studentResult = await client.query(studentInsertQuery, [
-            studentId,
-            name,
-            age,
-            req.body.gender || null,
-            email,
-            true
-        ]);
-        const dbStudentId = studentResult.rows[0].id;
+        // Check if a student with the provided email already exists.
+        const checkStudentQuery = 'SELECT id FROM students WHERE email = $1;';
+        const existingStudentResult = await client.query(checkStudentQuery, [email]);
+        
+        let dbStudentId;
+
+        if (existingStudentResult.rows.length > 0) {
+            // --- STUDENT EXISTS ---
+            // Use the existing student's ID for linking new images.
+            dbStudentId = existingStudentResult.rows[0].id;
+
+        } else {
+            // --- NEW STUDENT ---
+            // Insert a new record into the students table.
+            const studentInsertQuery = `
+                INSERT INTO students (id, name, age, gender, email, consent_given)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING id;
+            `;
+            const studentResult = await client.query(studentInsertQuery, [
+                studentId,
+                name,
+                age,
+                req.body.gender || null,
+                email,
+                true
+            ]);
+            dbStudentId = studentResult.rows[0].id;
+        }
 
         // Insert into student_images table
         const imageInsertQuery = `
